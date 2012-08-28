@@ -18,9 +18,6 @@
   (def matrix2 [[1 2 3 4][12 13 14 5][11 16 15 6][10 9 8 7]])
   (defn spiral-print [matrix]
     (let [ [row & rows] (seq matrix)]
-      (println "::")
-      (println (str "row  : " row))
-      (println (str "rows : " rows))
       (doseq [el row]  (println (str " " el)))
       (when (seq rows) (recur (reverse (apply map vector rows))))))
       ;(when (seq rows) (->> rows (apply map vector) reverse recur))))
