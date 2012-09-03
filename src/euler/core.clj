@@ -75,21 +75,46 @@
 
 (ns quicksort)
 
-(defn sort-parts [work] 
-  (lazy-seq 
-    (loop [[part & parts] work]
-      (if-let [[pivot & xs] (seq part)]
-        (let [smaller? #(< % pivot)]
-          (recur (list*
+  (defn sort-parts [work] 
+    (lazy-seq 
+      (loop [[part & parts] work]
+        (if-let [[pivot & xs] (seq part)]
+          (let [smaller? #(< % pivot)]
+            (recur (list*
                    (filter smaller? xs)
                    pivot
                    (remove smaller? xs)
                    parts)))
-        (when-let [[x & parts] parts]
-          (cons x (sort-parts parts)))))))
-(defn qsort [xs]
-  (sort-parts (list xs)))
-(defn random-nums [n] (take n (repeatedly #(rand-int n))))
+          (when-let [[x & parts] parts]
+            (cons x (sort-parts parts)))))))
+  (defn qsort [xs]
+    (sort-parts (list xs)))
+  (defn random-nums [n] (take n (repeatedly #(rand-int n))))
+
+(ns head2tail
+  "Solving the head to tail problem,
+  you have to come up with a list of words which is the path from the 
+  first word to the second, changing 1 letter a time."
+  (:use [clojure.string :only [lower-case split-lines replace-first]]))
+
+  (def dictionary
+    (into #{} 
+      (map lower-case 
+        (split-lines (slurp "/usr/share/dict/words")))))
+  
+  (def alphabet "abcdefghijklmnopqrstuvwxyz")
+
+  (defn neighbor-words [^String word result]
+    "Return a lazy-seq with words which differ from 
+    the input word by only the first letter"
+    (remove #{word} (into []
+      (filter dictionary 
+        (loop [[f & r] word]
+          (for [abc alphabet] 
+            (replace-first word f (str abc))))))))
+       
+  ;(let [sb (StringBuilder. word)] (for [altc alphabet] (str (doto sb (.setCharAt 1 altc)))))
+
 
 ;main 
 (ns euler.core
@@ -97,11 +122,11 @@
 
 (defn -main [& args]
   (set! *print-length* 10)
-  (time (println (quicksort/qsort (random-nums 100000))))
-  (time (println (str "euler23 : " (euler23/euler23))))
+  ;(time (println (str "euler23 : " (euler23/euler23))))
   ;(time (println (str "euler24 : " (euler24/euler24))))
   ;(time (println (str "euler25 : " (euler25/euler25))))
   ;(time (println (str "euler25 : " (euler25/euler25))))
-  (time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
+  ;(time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
+  ;(time (println (quicksort/qsort (quicksort/random-nums 100000))))
   )
 
