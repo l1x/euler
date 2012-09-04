@@ -73,7 +73,8 @@
   ;(spiral-print matrix1 [])
   ;(spiral-print matrix2 [])
 
-(ns quicksort)
+(ns quicksort
+  "From the book Joy of Clojure")
 
   (defn sort-parts [work] 
     (lazy-seq 
@@ -94,7 +95,10 @@
 (ns head2tail
   "Solving the head to tail problem,
   you have to come up with a list of words which is the path from the 
-  first word to the second, changing 1 letter a time."
+  first word to the second, changing 1 letter a time.
+  Original source -> https://gist.github.com/608728
+  Blog post -> http://wp.me/p12FcK-3
+  "
   (:use [clojure.string :only [lower-case split-lines replace-first]]))
 
   (def dictionary
@@ -104,18 +108,25 @@
   
   (def alphabet "abcdefghijklmnopqrstuvwxyz")
 
-  (defn neighbor-words [^String word result]
+  (defn neighbor-words [^String word]
     "Return a lazy-seq with words which differ from 
-    the input word by only the first letter"
-    (remove #{word} (into []
-      (filter dictionary 
-        (loop [[f & r] word]
-          (for [abc alphabet] 
-            (replace-first word f (str abc))))))))
-       
-  ;(let [sb (StringBuilder. word)] (for [altc alphabet] (str (doto sb (.setCharAt 1 altc)))))
+    the input word by one letter. This solution heavily leverages Java"
+    (filter dictionary
+      (apply concat
+        (map-indexed (fn [i c]
+          (let [java-string (StringBuilder. word)]
+            (for [abc alphabet :when (not= abc c)] 
+              (str (doto java-string (.setCharAt i abc)))))) word))))
+    ;todo rewrite it purely in clojure
 
-
+  (defn find-path [neighbors start end]
+    (loop [queue (conj clojure.lang.PersistentQueue/EMPTY start) preds {start nil}]
+    (when-let [node (peek queue)]
+      (let [nbrs (remove #(contains? preds %) (neighbors node))]
+        (if (some #{end} nbrs)
+          (reverse (cons end (take-while identity (iterate preds node))))
+          (recur (into (pop queue) nbrs)
+                 (reduce #(assoc %1 %2 node) preds nbrs)))))))
 ;main 
 (ns euler.core
   (:gen-class))
@@ -128,5 +139,6 @@
   ;(time (println (str "euler25 : " (euler25/euler25))))
   ;(time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
   ;(time (println (quicksort/qsort (quicksort/random-nums 100000))))
+  (time (println  (str "head2tail : " (head2tail/find-path head2tail/neighbor-words "head" "tail"))))
   )
 
