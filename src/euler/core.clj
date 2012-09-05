@@ -108,7 +108,7 @@
   
   (def alphabet "abcdefghijklmnopqrstuvwxyz")
 
-  (defn neighbor-words [^String word]
+  (defn neighbor-words1 [^String word]
     "Return a lazy-seq with words which differ from 
     the input word by one letter. This solution heavily leverages Java"
     (filter dictionary
@@ -117,7 +117,15 @@
           (let [java-string (StringBuilder. word)]
             (for [abc alphabet :when (not= abc c)] 
               (str (doto java-string (.setCharAt i abc)))))) word))))
-    ;todo rewrite it purely in clojure
+
+  (defn neighbor-words3 [^String word]
+    ;Pure clojure implementation
+    ;slower than the Java one
+    (filter dictionary
+      (distinct
+        (for [w (for [abc alphabet i (range 0 (count word))] 
+          (assoc (into [] word) i abc))] 
+            (apply str w)))))
 
   (defn find-path [neighbors start end]
     (loop [queue (conj clojure.lang.PersistentQueue/EMPTY start) preds {start nil}]
@@ -139,6 +147,13 @@
   ;(time (println (str "euler25 : " (euler25/euler25))))
   ;(time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
   ;(time (println (quicksort/qsort (quicksort/random-nums 100000))))
-  (time (println  (str "head2tail : " (head2tail/find-path head2tail/neighbor-words "head" "tail"))))
+  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "head" "tail"))))
+  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "head" "tail"))))
+  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "hood" "pork"))))
+  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "hood" "pork"))))
+  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "bibs" "woom"))))
+  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "bibs" "woom"))))
+  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "arab" "wink"))))
+  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "arab" "wink"))))
   )
 
