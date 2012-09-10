@@ -77,6 +77,80 @@
         (for [a (range -999 1001)
               b (range 1001)]
               [a b (consecutive-primes a b)])))
+(ns euler28)
+
+  (defn euler28 
+    [n]
+    (if (= n 1)
+      1
+      (apply + (cons (euler28 (- n 2))
+        (take 4 (iterate #(- % (- n 1)) (* n n)))))))
+
+(ns euler29)
+
+  (defn euler29 
+    [n]
+    (count (distinct (for 
+                       [a (range 2 n) 
+                        b (range 2 n)] 
+                        (Math/pow a b)))))
+
+(ns euler30)
+
+  ;Clojure implementation of pow
+  (defn pow 
+    [x y]
+      (reduce * (replicate y x)))
+  (defn char-int 
+    [c]
+      (- (int c) 48))
+  (defn digits 
+    [n]
+      (map char-int (str n)))
+
+  (defn pow5
+    [] 
+      (reduce + (map first 
+        (filter  #(= (nth % 0) (nth % 1)) 
+          (for 
+            [a (range 2 999999) 
+            :let [b (reduce + (map #(int (Math/pow %1 5)) (digits a)))]] 
+            [a b])))))
+
+(ns euler31)
+
+  (def coins [200 100 50 20 10 5 2 1])
+ 
+  (defn change
+    [c v]
+    (let [f (first c)]
+      (if (= f 1) 1
+        (reduce + (for [n (range 0 (inc (quot v f)))]
+          (change (rest c) (- v (* n f))))))))
+
+  (defn euler31 
+    [] 
+    (change coins 200))
+
+(ns euler32)
+  (set! *print-length* 10)
+
+  (defn char-int
+    [c]
+      (- (int c) 48))
+  (defn digits
+    [n]
+      (map char-int (str n)))
+
+  (defn multipl [] 
+    (for 
+      [a (range 1 999)
+       b (range 1 999)] 
+       [a b (* a b)]))
+
+  (defn asd [] )
+
+
 
 (ns maps-as-we-like)
 
@@ -103,16 +177,17 @@
   (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
   (def matrix1 [[1 2 3][8 9 4][7 6 5]])
   (def matrix2 [[1 2 3 4][12 13 14 5][11 16 15 6][10 9 8 7]])
-  (defn spiral-print [matrix result]
-    (let [[row & rows] (seq matrix)]
-      (if (seq rows)
-        (recur
-          ;calls the function with the remaining rotated matrix
-          (reverse (apply map vector rows))
-          ;returns a new list with result + row
-          (into result row)) ;for debugging replace with: (into (dbg result) (dbg row)))
-        ;else
-        result)))
+  (defn spiral-print 
+    [matrix result]
+      (let [[row & rows] (seq matrix)]
+        (if (seq rows)
+          (recur
+            ;calls the function with the remaining rotated matrix
+            (reverse (apply map vector rows))
+            ;returns a new list with result + row
+            (into result row)) ;for debugging replace with: (into (dbg result) (dbg row)))
+          ;else
+          result)))
 
 (ns quicksort
   "From the book Joy of Clojure")
