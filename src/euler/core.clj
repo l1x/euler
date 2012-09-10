@@ -50,6 +50,54 @@
   (defn euler25 [] 
     (+ 1 (count (take-while #(< (num-of-digits %1) 1000) (fibo)))))
 
+(ns euler27)
+
+  (set! *print-length* 10)
+  (def certainty 15)
+  (defn prime? [n]
+      (.isProbablePrime (BigInteger/valueOf n) certainty))
+  
+  (defn quadratic-formula 
+    [a b n] 
+    (+ (* n n) (* a n) b))
+  ;how many consecutive primes can be found with a and b
+  ;=>(consecutive-primes 1 41)
+  ;40
+  (defn consecutive-primes
+    [a b]
+    (count (take-while prime? (map (partial quadratic-formula a b) (iterate inc 0)))))
+  
+  (defn max-primes
+    [[a b c] [d e f]]
+    (if (> c f) [a b c] [d e f]))
+
+  (defn euler27 
+    []
+      (reduce max-primes
+        (for [a (range -999 1001)
+              b (range 1001)]
+              [a b (consecutive-primes a b)])))
+
+(ns maps-as-we-like)
+
+  ;(defn rem3 (group-by #(rem % 3) (range 100)))
+  (defn reduce-by 
+    [key-fn f init coll] 
+    (reduce (fn [summaries x] 
+              (let [k (key-fn x)] 
+                (assoc summaries k (f (summaries k init) x))))
+    {} coll))
+  (def orders [
+                {:product "Szoporoller"      :customer "Saxus" :qty 66 :total 200}
+                {:product "PHP 24 ora alatt" :customer "Saxus" :qty 10 :total 120}
+                {:product "miegyebet"        :customer "Bela"  :qty 12 :total 230}
+                {:product "harci maszk"      :customer "Jozsi" :qty 23 :total 290}
+
+                ])
+  (defn order-totals 
+    [orders] 
+    (reduce-by :customer #(+ %1 (:total %2)) 0 orders))
+
 (ns spiral)
 
   (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
@@ -65,13 +113,6 @@
           (into result row)) ;for debugging replace with: (into (dbg result) (dbg row)))
         ;else
         result)))
-      ;(when (seq rows) (->> rows (apply map vector) reverse recur))))
-      ;(recur (reverse (apply map vector rows)))
-      ;(->> foo (a b c) (d e f)) = (d e f (a b c foo))
-      ;(->> [[8 9 4] [7 6 5]] (apply map vector))
-      ;([8 7] [9 6] [4 5])
-  ;(spiral-print matrix1 [])
-  ;(spiral-print matrix2 [])
 
 (ns quicksort
   "From the book Joy of Clojure")
