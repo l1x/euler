@@ -142,15 +142,21 @@
     [n]
       (map char-int (str n)))
 
-  (defn multipl [] 
-    (for 
-      [a (range 1 999)
-       b (range 1 999)] 
-       [a b (* a b)]))
+  (defn pandigital? 
+    [x y z]
+    (= '(1 2 3 4 5 6 7 8 9) 
+        (sort (apply concat (map digits [x y z])))))
 
-  (defn asd [] )
-
-
+  (defn euler32 
+    [] 
+    (reduce + (distinct (for 
+      ;the tricky part is to skip 
+      ;the already calculated values, reduces runtime
+      [a (range 1 5000)
+       b (range a (/ 9999 a))
+       :let [c (* a b)]
+       :when (pandigital? a b c)]
+       c))))
 
 (ns maps-as-we-like)
 
