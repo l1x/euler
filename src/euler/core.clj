@@ -36,7 +36,6 @@
   (defn euler23 [] (reduce + (clojure.set/difference (into #{} (range 1 28124))
                                          (into #{} (sum-of-abundants 28123)))))
 (ns euler24
-
   (:use [clojure.math.combinatorics :only [permutations]]))
   (defn euler24 []
     (bigint (apply str (nth (permutations [0 1 2 3 4 5 6 7 8 9]) 999999))))
@@ -181,11 +180,44 @@
     (reduce +  (map factorial (digits n))))
   (defn curious? 
     [n]
-    (if (or (or (= n 1) (= n 2)) (not (= (sum-of-factorials n) n))) false true)) 
-
+    (if (and (not (= n 1)) (not (= n 2)) (= (sum-of-factorials n) n)) true false))
   (defn euler34 
     [] 
     (reduce + (filter curious? (take 1000000(numbers)))))
+
+(ns euler35
+  (set! *print-length* 10)
+  (defn char-int
+    [c]
+    (- (int c) 48))
+  (defn digits
+    [n]
+    (map char-int (str n)))
+  (def certainty 5)
+  (defn prime? 
+    [n]
+    (.isProbablePrime (BigInteger/valueOf n) certainty))
+  (defn numbers
+    []
+    (iterate inc 1))
+  (defn rotations
+    "Returns a lazy seq of all rotations of a seq"
+    [x]
+    (if (seq x)
+      (map (fn [n _] (lazy-cat (drop n x) (take n x))) (iterate inc 0) x)
+      (list nil)))
+  (defn circular?
+    [n]
+    (every? prime? (map #(Integer/parseInt (apply str %)) (rotations (digits n)))))
+  (defn euler35 
+    [] 
+    (count (filter circular? (filter prime? (take 1000001 (numbers))))))
+
+
+  
+
+
+
 
 (ns maps-as-we-like)
 
