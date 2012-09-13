@@ -158,6 +158,35 @@
        :when (pandigital? a b c)]
        c))))
 
+(ns euler34)
+  (set! *print-length* 10)
+  ;145 is a curious number, as 1! + 4! + 5! = 1 + 24 + 120 = 145.
+  ;Find the sum of all numbers which are equal to the sum of the factorial of their digits.
+
+  ;limit the search to 1.000.000
+  (defn numbers 
+    [] 
+    (iterate inc 1))
+  (defn char-int
+    [c]
+    (- (int c) 48))
+  (defn digits
+    [n]
+    (map char-int (str n)))
+  (defn factorial 
+    [n]
+    (reduce * (range 1 (inc n))))
+  (defn sum-of-factorials 
+    [n] 
+    (reduce +  (map factorial (digits n))))
+  (defn curious? 
+    [n]
+    (if (or (or (= n 1) (= n 2)) (not (= (sum-of-factorials n) n))) false true)) 
+
+  (defn euler34 
+    [] 
+    (reduce + (filter curious? (take 1000000(numbers)))))
+
 (ns maps-as-we-like)
 
   ;(defn rem3 (group-by #(rem % 3) (range 100)))
