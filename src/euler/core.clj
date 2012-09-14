@@ -213,9 +213,53 @@
     [] 
     (count (filter circular? (filter prime? (take 1000001 (numbers))))))
 
+(ns euler36)
+  (set! *print-length* 10)
+  (defn palindromic? 
+    [n]
+    (= (seq (str n)) (reverse (str n))))
+  (defn bin-palindromic? 
+    [n]
+    (palindromic? (Integer/toBinaryString n)))
+  (defn numbers
+    []
+    (iterate inc 1))
+  (defn euler36 
+    []  
+    ;skipping even numbers -> binary form is not palindromic for sure
+    ;user=>  (map #(Integer/toBinaryString %) [2 4 6 8 10 12])
+    ;("10" "100" "110" "1000" "1010" "1100")
+    (reduce + 
+      (filter #(and (palindromic? %) (bin-palindromic? %)) 
+        (filter odd? 
+          (take 1000001 (numbers))))))
 
+(ns euler37)
+  (set! *print-length* 10)
+  (defn numbers
+    []
+    (iterate inc 1))
+  (def certainty 5)
+  (defn prime?
+    [n]
+    (.isProbablePrime (BigInteger/valueOf n) certainty))
+  (defn char-int
+    [c]
+    (- (int c) 48))
+  (defn digits
+    "Returns a coll of the digits of the number"
+    [n]
+    (map char-int (str n)))
+  (defn as-int 
+    [coll]
+    (read-string (apply str coll)))
   
+  ;todo write recursive function which takes a 
+  ;number and checks if it is truncatable from left to right and back
 
+  (defn euler37 [] (take 11 (filter prime? (filter #(> % 7) (numbers)))))
+  
+(ns euler38)
 
 
 
