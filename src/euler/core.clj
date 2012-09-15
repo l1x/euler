@@ -17,31 +17,71 @@
 ;TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
 ;WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ;
-;And more importantly it turned out that lawyers has smaller penis than the normal sample.
-;
-(ns euler23 
-  ;euler23 - Find the sum of all the positive integers which cannot be written as the sum of two abundant numbers.
-  (:require clojure.set))
+
+
+(ns euler)
 
   (defn sum-of-divisors [n] (reduce + (filter #(zero? (rem n %)) (range 1 n))))
   (defn abundant? [n] (> (sum-of-divisors n) n))
-  (defn abundants [n] (filter abundant? (range 1 (+ n 1))))
-  (defn sum-of-abundants [n]
+
+  (def certainty 10)
+  (defn prime?
+    "Predicate, return true if the parameter is a prime"
+    [n]
+    (.isProbablePrime (BigInteger/valueOf n) certainty))
+  (defn char-int
+    "Magic 48"
+    [c]
+    (- (int c) 48))
+  (defn digits
+    "Returns a coll of the digits of the number"
+    [n]
+    (map char-int (str n)))
+  (defn as-int
+    "Assembles a number of the elements in a coll"
+    [coll]
+    (read-string (apply str coll)))
+  (defn numbers
+    "Lazy-seq of natural numbers from 1"
+    []
+    (iterate inc 1))
+  (defn pow
+    "Power of, x^y"
+    [x y]
+    (reduce * (replicate y x)))
+  (defn rotations
+    "Returns a lazy seq of all rotations of a seq"
+    [x]
+    (if (seq x)
+      (map (fn [n _] (lazy-cat (drop n x) (take n x))) (iterate inc 0) x)
+      (list nil)))
+
+(ns euler23 
+  ;euler23 - Find the sum of all the positive integers which cannot be written as the sum of two abundant numbers.
+  (:require clojure.set))
+  (defn abundants 
+    [n] 
+    (filter euler/abundant? 
+      (range 1 (+ n 1))))
+  (defn sum-of-abundants 
+    [n]
     (let [abnums (abundants n)]
       (distinct
         (for [x abnums
               y abnums
               :while (and (<= y x) (<= (+ x y) n))]
                 (+ x y)))))
-  (defn euler23 [] (reduce + (clojure.set/difference (into #{} (range 1 28124))
-                                         (into #{} (sum-of-abundants 28123)))))
+  (defn euler23 
+    [] 
+    (reduce + 
+      (clojure.set/difference (into #{} (range 1 28124))
+                              (into #{} (sum-of-abundants 28123)))))
 (ns euler24
   (:use [clojure.math.combinatorics :only [permutations]]))
   (defn euler24 []
     (bigint (apply str (nth (permutations [0 1 2 3 4 5 6 7 8 9]) 999999))))
 
 (ns euler25)
-
   (defn fibo []
     (map first (iterate (fn [[a b]] [b(+ a b)]) [1N 1N])))
   (defn num-of-digits [n]
@@ -50,12 +90,6 @@
     (+ 1 (count (take-while #(< (num-of-digits %1) 1000) (fibo)))))
 
 (ns euler27)
-
-  (set! *print-length* 10)
-  (def certainty 15)
-  (defn prime? [n]
-      (.isProbablePrime (BigInteger/valueOf n) certainty))
-  
   (defn quadratic-formula 
     [a b n] 
     (+ (* n n) (* a n) b))
@@ -64,20 +98,18 @@
   ;40
   (defn consecutive-primes
     [a b]
-    (count (take-while prime? (map (partial quadratic-formula a b) (iterate inc 0)))))
-  
+    (count (take-while euler/prime? (map (partial quadratic-formula a b) (iterate inc 0)))))
   (defn max-primes
     [[a b c] [d e f]]
     (if (> c f) [a b c] [d e f]))
-
   (defn euler27 
     []
       (reduce max-primes
         (for [a (range -999 1001)
               b (range 1001)]
               [a b (consecutive-primes a b)])))
-(ns euler28)
 
+(ns euler28)
   (defn euler28 
     [n]
     (if (= n 1)
@@ -86,40 +118,27 @@
         (take 4 (iterate #(- % (- n 1)) (* n n)))))))
 
 (ns euler29)
-
   (defn euler29 
     [n]
     (count (distinct (for 
                        [a (range 2 n) 
                         b (range 2 n)] 
-                        (Math/pow a b)))))
+                        (euler/pow a b)))))
 
 (ns euler30)
-
-  ;Clojure implementation of pow
-  (defn pow 
-    [x y]
-      (reduce * (replicate y x)))
-  (defn char-int 
-    [c]
-      (- (int c) 48))
-  (defn digits 
-    [n]
-      (map char-int (str n)))
-
   (defn pow5
     [] 
-      (reduce + (map first 
+    (reduce + 
+      (map first 
         (filter  #(= (nth % 0) (nth % 1)) 
           (for 
             [a (range 2 999999) 
-            :let [b (reduce + (map #(int (Math/pow %1 5)) (digits a)))]] 
+            :let 
+              [b (reduce + (map #(int (euler/pow %1 5)) (euler/digits a)))]] 
             [a b])))))
 
 (ns euler31)
-
   (def coins [200 100 50 20 10 5 2 1])
- 
   (defn change
     [c v]
     (let [f (first c)]
@@ -132,25 +151,14 @@
     (change coins 200))
 
 (ns euler32)
-  (set! *print-length* 10)
-
-  (defn char-int
-    [c]
-      (- (int c) 48))
-  (defn digits
-    [n]
-      (map char-int (str n)))
-
   (defn pandigital? 
     [x y z]
-    (= '(1 2 3 4 5 6 7 8 9) 
-        (sort (apply concat (map digits [x y z])))))
+    (= '(1 2 3 4 5 6 7 8 9)
+        (sort (apply concat (map euler/digits [x y z])))))
 
   (defn euler32 
     [] 
     (reduce + (distinct (for 
-      ;the tricky part is to skip 
-      ;the already calculated values, reduces runtime
       [a (range 1 5000)
        b (range a (/ 9999 a))
        :let [c (* a b)]
@@ -158,72 +166,37 @@
        c))))
 
 (ns euler34)
-  (set! *print-length* 10)
   ;145 is a curious number, as 1! + 4! + 5! = 1 + 24 + 120 = 145.
   ;Find the sum of all numbers which are equal to the sum of the factorial of their digits.
-
   ;limit the search to 1.000.000
-  (defn numbers 
-    [] 
-    (iterate inc 1))
-  (defn char-int
-    [c]
-    (- (int c) 48))
-  (defn digits
-    [n]
-    (map char-int (str n)))
   (defn factorial 
     [n]
     (reduce * (range 1 (inc n))))
   (defn sum-of-factorials 
     [n] 
-    (reduce +  (map factorial (digits n))))
+    (reduce +  (map factorial (euler/digits n))))
   (defn curious? 
     [n]
     (if (and (not (= n 1)) (not (= n 2)) (= (sum-of-factorials n) n)) true false))
   (defn euler34 
     [] 
-    (reduce + (filter curious? (take 1000000(numbers)))))
+    (reduce + (filter curious? (take 1000000(euler/numbers)))))
 
-(ns euler35
-  (set! *print-length* 10)
-  (defn char-int
-    [c]
-    (- (int c) 48))
-  (defn digits
-    [n]
-    (map char-int (str n)))
-  (def certainty 5)
-  (defn prime? 
-    [n]
-    (.isProbablePrime (BigInteger/valueOf n) certainty))
-  (defn numbers
-    []
-    (iterate inc 1))
-  (defn rotations
-    "Returns a lazy seq of all rotations of a seq"
-    [x]
-    (if (seq x)
-      (map (fn [n _] (lazy-cat (drop n x) (take n x))) (iterate inc 0) x)
-      (list nil)))
+(ns euler35)
   (defn circular?
     [n]
-    (every? prime? (map #(Integer/parseInt (apply str %)) (rotations (digits n)))))
+    (every? euler/prime? (map #(Integer/parseInt (apply str %)) (euler/rotations (euler/digits n)))))
   (defn euler35 
     [] 
-    (count (filter circular? (filter prime? (take 1000001 (numbers))))))
+    (count (filter circular? (filter euler/prime? (take 1000001 (euler/numbers))))))
 
 (ns euler36)
-  (set! *print-length* 10)
   (defn palindromic? 
     [n]
     (= (seq (str n)) (reverse (str n))))
   (defn bin-palindromic? 
     [n]
     (palindromic? (Integer/toBinaryString n)))
-  (defn numbers
-    []
-    (iterate inc 1))
   (defn euler36 
     []  
     ;skipping even numbers -> binary form is not palindromic for sure
@@ -232,24 +205,9 @@
     (reduce + 
       (filter #(and (palindromic? %) (bin-palindromic? %)) 
         (filter odd? 
-          (take 1000001 (numbers))))))
+          (take 1000001 (euler/numbers))))))
 
 (ns euler37)
-  (set! *print-length* 10)
-  (defn numbers
-    []
-    (iterate inc 1))
-  (def certainty 5)
-  (defn prime?
-    [n]
-    (.isProbablePrime (BigInteger/valueOf n) certainty))
-  (defn char-int
-    [c]
-    (- (int c) 48))
-  (defn digits
-    "Returns a coll of the digits of the number"
-    [n]
-    (map char-int (str n)))
   (defn as-int 
     [coll]
     (read-string (apply str coll)))
@@ -257,11 +215,11 @@
   ;todo write recursive function which takes a 
   ;number and checks if it is truncatable from left to right and back
 
-  (defn euler37 [] (take 11 (filter prime? (filter #(> % 7) (numbers)))))
+  (defn euler37 [] (take 11 (filter euler/prime? (filter #(> % 7) (euler/numbers)))))
   
 (ns euler38)
 
-
+  
 
 (ns maps-as-we-like)
 
@@ -368,12 +326,12 @@
 
 (defn -main [& args]
   (set! *print-length* 10)
-  ;(time (println (str "euler23 : " (euler23/euler23))))
-  ;(time (println (str "euler24 : " (euler24/euler24))))
-  ;(time (println (str "euler25 : " (euler25/euler25))))
-  ;(time (println (str "euler25 : " (euler25/euler25))))
-  ;(time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
-  ;(time (println (quicksort/qsort (quicksort/random-nums 100000))))
+  (time (println (str "euler23 : " (euler23/euler23))))
+  (time (println (str "euler24 : " (euler24/euler24))))
+  (time (println (str "euler25 : " (euler25/euler25))))
+  (time (println (str "euler25 : " (euler25/euler25))))
+  (time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
+  (time (println (quicksort/qsort (quicksort/random-nums 100000))))
   (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "head" "tail"))))
   (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "head" "tail"))))
   (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "hood" "pork"))))
