@@ -17,13 +17,9 @@
 ;TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
 ;WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ;
-
-
 (ns euler)
-
   (defn sum-of-divisors [n] (reduce + (filter #(zero? (rem n %)) (range 1 n))))
   (defn abundant? [n] (> (sum-of-divisors n) n))
-
   (def certainty 10)
   (defn prime?
     "Predicate, return true if the parameter is a prime"
@@ -41,10 +37,10 @@
     "Assembles a number of the elements in a coll"
     [coll]
     (read-string (apply str coll)))
-  (defn numbers
+  (defn numbers 
     "Lazy-seq of natural numbers from 1"
-    []
-    (iterate inc 1))
+    ([] (numbers 1))
+    ([n] (cons n (lazy-seq (numbers (inc n))))))
   (defn pow
     "Power of, x^y"
     [x y]
@@ -55,6 +51,141 @@
     (if (seq x)
       (map (fn [n _] (lazy-cat (drop n x) (take n x))) (iterate inc 0) x)
       (list nil)))
+  ;lazy-seq of Fibonacci numbers
+  (defn fibo 
+    []
+    (map first (iterate (fn [[a b]] [b(+ a b)]) [1N 1N])))
+  (defn fact 
+    [n] 
+    (reduce * (range 1N (inc n))))
+  (defn pyth?
+    [a b c]
+    (and (< a b c) (== (+ (* a a) (* b b)) (* c c))))
+  (defn pyth 
+    "returns the Pythagorean triplets to n"
+    [n] 
+    (for [a (range 1 n)
+          b (range (+ a 1) n)
+          c (range (+ b 1) n)
+          :when (and (> c b a) (= (+ (* a a) (* b b)) (* c c)))]
+          [a b c]))
+  (defn occurrences 
+    "Counting the occurrences for each value in a collection
+    consider the following:
+    (assoc {1 0, 2 0, 3 0} 2 (inc ({1 0, 2 0, 3 0} 2 0)))"
+    [coll] 
+    (reduce #(assoc %1 %2 (inc (%1 %2 0))) {} coll))
+;destructing
+; (map (fn [[k v]] [k (count v)]) (group-by #(rem % 3) (range 20)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ns euler39)
+  (defn pyth
+    "returns the perimeter of the Pythagorean triplets to n as a coll"
+    [n]
+    (for [a (range 1 n)
+          b (range (+ a 1) n)
+          c (range (+ b 1) n)
+          :when (and (> c b a) (= (+ (* a a) (* b b)) (* c c)))]
+          (+ a b c)))
+  (defn euler39
+    "We need to get the perimeters of the Pythagorean triplets
+    (12 30 24...)
+    we need to filter that to be less than 1000
+    in the returned collection we need the occurrences of each value
+    the returned map has to be sorted by the values
+    "
+    []
+    (nth (first (sort-by val > 
+      (occurrences 
+        (filter #(< % 1000) (pyth 400)))))0))
+
+(ns euler9)
+  (defn pyth-sum 
+    [n]
+    (first (for [a (range 1 n)
+                 b (range (+ a 1) n)
+                 c (list (- n a b))
+                 :when (and (> c b a) (= (+ (* a a) (* b b)) (* c c)))]
+                 (* a b c))))
+  (defn euler9 
+    []
+    (pyth-sum 1000))
+
+(ns euler11)
+
+  (defn smaller-than-2m [n] (< n 2000000N)) 
+  (defn euler11 
+    [] 
+    (reduce + (filter euler/prime? (take-while smaller-than-2m euler/numbers))))
+
+(ns euler12)
+  ;using the (n*(n+1))/2 form
+  (def triangle-nums 
+    (map #(/ (* % (+ % 1)) 2) euler/numbers))
+  ;http://mathschallenge.net/library/number/number_of_divisors
+  (defn count-of-divisors 
+    [n]
+    (* 2 (count
+      (filter #(zero? (rem n %)) (range 1 (Math/sqrt n))))))
+
+  (defn euler12 
+    [] 
+    (first (filter #(> (count-of-divisors %) 500) triangle-nums)))
+
+
+(ns euler14)
+  (defn collatz 
+    [n]
+    (let [step (fn [n]
+      (if (even? n)
+        (/ n 2)
+        (inc (* n 3))))]
+      (take-while (partial < 1) (iterate step n))))
+  (defn longest-collatz
+    [ceil]
+    (first 
+      (reduce #(if (> (count %1) (count %2)) %1 %2)
+        (map collatz (range ceil)))))
+  (defn euler14 
+    [] 
+    (longest-collatz 1000000))
+
+(ns euler16)
+  (defn euler16 
+    [] 
+    (reduce + (euler/digits (euler/pow 2N 1000N))))
+
+(ns euler20)
+  (defn euler20 
+    [] 
+    (reduce + (euler/digits (euler/fact 100N))))
+
+(ns euler21)
+  (defn sum-of-divisors 
+    [n]
+    (reduce + (filter #(zero? (rem n %)) (range 1 n))))
+  (defn amicable [a]
+    (let [b (sum-of-divisors a)]
+      (if (and (not (= a b)) (= a (sum-of-divisors b)))
+        a
+        0)))
+  (defn euler21 
+    []
+    (reduce + (map amicable (range 1 10001))))
+
+(ns euler22)
+
+  (def s (slurp "names.txt"))
+  (def sorted (sort (re-seq #"[\w]+" s)))
+  (defn string2anum 
+    [s]
+    (reduce + (map #(- (int %) 64) s)))
+  (defn euler22 
+    []
+    (reduce + 
+      (for 
+        [n (range 0 (count sorted))]
+        (* (inc n) (string2anum (nth sorted n)) ) )))
 
 (ns euler23 
   ;euler23 - Find the sum of all the positive integers which cannot be written as the sum of two abundant numbers.
@@ -82,12 +213,10 @@
     (bigint (apply str (nth (permutations [0 1 2 3 4 5 6 7 8 9]) 999999))))
 
 (ns euler25)
-  (defn fibo []
-    (map first (iterate (fn [[a b]] [b(+ a b)]) [1N 1N])))
   (defn num-of-digits [n]
     (count (str n)))
   (defn euler25 [] 
-    (+ 1 (count (take-while #(< (num-of-digits %1) 1000) (fibo)))))
+    (+ 1 (count (take-while #(< (num-of-digits %1) 1000) (euler/fibo)))))
 
 (ns euler27)
   (defn quadratic-formula 
@@ -217,10 +346,6 @@
 
   (defn euler37 [] (take 11 (filter euler/prime? (filter #(> % 7) (euler/numbers)))))
   
-(ns euler38)
-
-  
-
 (ns maps-as-we-like)
 
   ;(defn rem3 (group-by #(rem % 3) (range 100)))
