@@ -58,6 +58,10 @@
   (defn fact 
     [n] 
     (reduce * (range 1N (inc n))))
+  (defn pandigital?
+    [n]
+    (=  (apply sorted-set (map #(Integer. (str %)) (str n)))
+        (apply sorted-set (map #(Integer. %) (range 1 (inc (count (str n))))))))
   (defn pyth?
     [a b c]
     (and (< a b c) (== (+ (* a a) (* b b)) (* c c))))
@@ -78,6 +82,22 @@
 ;destructing
 ; (map (fn [[k v]] [k (count v)]) (group-by #(rem % 3) (range 20)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ns euler41
+  (:use [clojure.math.combinatorics :only [permutations]]))
+  (defn euler41 
+    []
+    (reduce max (filter #(and (euler/prime? %) (euler/pandigital? %))
+      (map #(Integer/parseInt (apply str %))
+        (permutations [1 2 3 4 5 6 7])))))
+(ns euler40)
+  (defn euler40 
+    []
+    (reduce * 
+      (map #(Character/getNumericValue %) 
+        (map #(nth (apply concat 
+          (map str (iterate inc 0))) %) 
+            [1 10 100 1000 10000 100000 1000000]))))
 (ns euler39)
   (defn pyth
     "returns the perimeter of the Pythagorean triplets to n as a coll"
@@ -96,7 +116,7 @@
     "
     []
     (nth (first (sort-by val > 
-      (occurrences 
+      (euler/occurrences 
         (filter #(< % 1000) (pyth 400)))))0))
 
 (ns euler9)
@@ -280,11 +300,10 @@
     (change coins 200))
 
 (ns euler32)
-  (defn pandigital? 
+  (defn pandigital?
     [x y z]
     (= '(1 2 3 4 5 6 7 8 9)
         (sort (apply concat (map euler/digits [x y z])))))
-
   (defn euler32 
     [] 
     (reduce + (distinct (for 
@@ -451,19 +470,22 @@
 
 (defn -main [& args]
   (set! *print-length* 10)
-  (time (println (str "euler23 : " (euler23/euler23))))
-  (time (println (str "euler24 : " (euler24/euler24))))
-  (time (println (str "euler25 : " (euler25/euler25))))
-  (time (println (str "euler25 : " (euler25/euler25))))
-  (time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
-  (time (println (quicksort/qsort (quicksort/random-nums 100000))))
-  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "head" "tail"))))
-  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "head" "tail"))))
-  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "hood" "pork"))))
-  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "hood" "pork"))))
-  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "bibs" "woom"))))
-  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "bibs" "woom"))))
-  (time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "arab" "wink"))))
-  (time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "arab" "wink"))))
+  (time (println (str "euler41 : " (euler41/euler41))))
+  ;(time (println (str "euler40 : " (euler40/euler40))))
+  ;(time (println (str "euler39 : " (euler39/euler39))))
+  ;(time (println (str "euler23 : " (euler23/euler23))))
+  ;(time (println (str "euler24 : " (euler24/euler24))))
+  ;(time (println (str "euler25 : " (euler25/euler25))))
+  ;(time (println (str "euler25 : " (euler25/euler25))))
+  ;(time (println (str "spiralp : " (spiral/spiral-print spiral/matrix2 []))))
+  ;(time (println (quicksort/qsort (quicksort/random-nums 100000))))
+  ;(time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "head" "tail"))))
+  ;(time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "head" "tail"))))
+  ;(time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "hood" "pork"))))
+  ;(time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "hood" "pork"))))
+  ;(time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "bibs" "woom"))))
+  ;(time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "bibs" "woom"))))
+  ;(time (println  (str "head2tail_java : " (head2tail/find-path head2tail/neighbor-words1 "arab" "wink"))))
+  ;(time (println  (str "head2tail_clj  : " (head2tail/find-path head2tail/neighbor-words3 "arab" "wink"))))
   )
 
