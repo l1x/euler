@@ -416,7 +416,6 @@
   ;([8] [9])
   ;
 
-
   (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
   (def matrix1 [[1 2 3][8 9 4][7 6 5]])
   (def matrix2 [[1 2 3 4][12 13 14 5][11 16 15 6][10 9 8 7]])
@@ -425,7 +424,7 @@
       (let [[row & rows] (seq matrix)]
         (if (seq rows)
           (recur
-            ;calls the function with the remaining rotated matrix
+            ;calls the function with the remaining "rotated" matrix
             (reverse (apply map vector rows))
             ;returns a new list with result + row
             (into result row)) ;for debugging replace with: (into (dbg result) (dbg row)))
