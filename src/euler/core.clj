@@ -389,6 +389,11 @@
 
   ;Wait what?
   ;
+  ;(def matrix1 
+  ;[[1 2 3] 
+  ; [8 9 4] 
+  ; [7 6 5]])
+  ;
   ;Simple idiom:
   ;(seq matrix1)
   ;([1 2 3] [8 9 4] [7 6 5])
@@ -401,9 +406,6 @@
   ;([8 7] [9 6] [4 5])
   ;user=> '[[1 2 3][8 9 4][7 6 5]]
   ;
-  ;[[1 2 3] 
-  ; [8 9 4] 
-  ; [7 6 5]]
   ;
   ;Reversing the list of arrays gives:
   ;user=> (reverse (apply map vector '[[8 9 4] [7 6 5]]))
