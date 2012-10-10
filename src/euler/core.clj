@@ -387,6 +387,34 @@
 
 (ns spiral)
 
+  ;Wait what?
+  ;
+  ;Simple idiom:
+  ;(seq matrix1)
+  ;([1 2 3] [8 9 4] [7 6 5])
+  ;
+  ;Rotation is exploiting the nature of the language 
+  ;that vector is applied to the first element of the 
+  ;first and second array, than to the second element 
+  ;of the first and second array, and so on
+  ;user=> (apply map vector '[[8 9 4] [7 6 5]])
+  ;([8 7] [9 6] [4 5])
+  ;user=> '[[1 2 3][8 9 4][7 6 5]]
+  ;
+  ;[[1 2 3] 
+  ; [8 9 4] 
+  ; [7 6 5]]
+  ;
+  ;Reversing the list of arrays gives:
+  ;user=> (reverse (apply map vector '[[8 9 4] [7 6 5]]))
+  ;([4 5] [9 6] [8 7])
+  ;user=> (reverse (apply map vector '[[9 6] [8 7]]))
+  ;([6 7] [9 8])
+  ;user=> (reverse (apply map vector '[[9 8]]))
+  ;([8] [9])
+  ;
+
+
   (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
   (def matrix1 [[1 2 3][8 9 4][7 6 5]])
   (def matrix2 [[1 2 3 4][12 13 14 5][11 16 15 6][10 9 8 7]])
@@ -400,7 +428,8 @@
             ;returns a new list with result + row
             (into result row)) ;for debugging replace with: (into (dbg result) (dbg row)))
           ;else
-          result)))
+          (into result row))))
+          ;(spiral-print matrix1 [])
 
 (ns quicksort
   "From the book Joy of Clojure")
