@@ -54,7 +54,7 @@
   ;lazy-seq of Fibonacci numbers
   (defn fibo 
     []
-    (map first (iterate (fn [[a b]] [b(+ a b)]) [1N 1N])))
+    (map first (iterate (fn [[a b]] [b (+ a b)]) [1N 1N])))
   (defn fact 
     [n] 
     (reduce * (range 1N (inc n))))
